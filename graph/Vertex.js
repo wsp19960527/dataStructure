@@ -1,13 +1,13 @@
 import { LinkedList } from '../linkedList/linkedList'
 import Edge from './Edge'
 /* 
- * 顶点
+* 顶点
+* @class
 */
 export default class Vertex {
   /**
   * @param {*} value
-  * @class
-  * @return {Vertex}
+
   */
   // 构造函数，参数为顶点的值
   constructor(value) {
