@@ -1,12 +1,38 @@
-import { Node } from './linked.js'
+import { ListNode } from './linked.js'
 
-export class NodeList {
-  constructor() {
+export class LinkedList {
+  /**
+ * @param {Function(a,b)} comparatorFunction
+ */
+  constructor(comparatorFunction) {
+    /** @var LinkedListNode */
     this.head = null
+    /** @var LinkedListNode */
     this.tail = null
     this.length = 0
+    this.compare = new Comparator(comparatorFunction);
   }
 
+  /**
+   * @param {*} value
+   * @return {LinkedList}
+   */
+  prepend(value) {
+    // Make new node to be a head.
+    const newNode = new LinkedListNode(value, this.head);
+    this.head = newNode;
+
+    // If there is no tail yet let's make new node a tail.
+    if (!this.tail) {
+      this.tail = newNode;
+    }
+
+    return this;
+  }
+  /**
+  * @param {*} value
+  * @return {LinkedList}
+  */
   append(value) {
     let node = new Node(value)
     if (!this.head) {
@@ -17,8 +43,15 @@ export class NodeList {
       this.tail = node
     }
     this.length++
+    return this
   }
-  insertAt(value, index) {
+  /**
+   * @param {*} value
+   * @param {number} index
+   * @return {LinkedList}
+   */
+
+  insert(value, index) {
     if (index < 0 || index > this.length) throw new Error('不是有效的索引')
     let node = new Node(value)
     if (index === 0) {
@@ -41,7 +74,136 @@ export class NodeList {
     }
     this.length++
   }
-  getAt(index) {
+
+  /**
+   * @param {*} value
+   * @return {ListNode}
+   */
+  delete(value) {
+    if (!this.head) return null
+    let deleteNode = this.head
+    let current = this.head
+    let previous = null
+    while (this.compare.equal(current.value, value)) {
+      if (!current.next) return null
+      previous = current
+      current = current.next
+    }
+    deleteNode
+    // 删除的不是头部
+    if (previous) {
+      previous.next = current.next
+    } else {
+      this.head = current.next
+    }
+    return current
+  }
+  /** 
+   * 查找value的节点 没找到返回null 找到返回节点
+   * @param {Object} findParams
+   * @param {*} findParams.value
+   * @param {function} [findParams.callback]
+   * @return {ListNode}
+   */
+  find({ value = undefined, callback = undefined }) {
+    if (!this.head) return null
+    let current = this.head
+    while (current) {
+      if (callback && callback(current.value)) {
+        return current
+      }
+      if (value !== undefined && this.compare.equal(current.value, value)) {
+        return current
+      }
+      current = current.next
+    }
+    return null
+  }
+
+  /**
+   * @return {ListNode} 删除尾部
+   */
+  deleteTail() {
+    if (!this.head) return null
+    const deletedTail = this.tail;
+    if (this.head == this.tail) {
+      this.head = this.tail = null
+    }
+    let current = this.head
+    let previous = null
+    while (current.next) {
+      previous = current
+      current = current.next
+    }
+    this.tail = previous
+    this.tail.next = null
+    return deletedTail
+  }
+  /**
+   * @return {ListNode} 删除头部
+   */
+  deleteHead() {
+    if (!this.head) return null
+    const deletedHead = this.head
+    if (this.head.next) {
+      this.head = this.head.next
+    } else {
+      this.head = this.tail = null
+    }
+    return deletedHead
+  }
+
+  /**
+   * @param {*[]} values - 批量添加
+   * @return {LinkedList}
+   */
+  fromArray(values) {
+    values.forEach(value => this.append(value))
+    return this
+  }
+
+  /**
+   * @return {ListNode[]}
+   */
+  toArray() {
+    const nodes = []
+    let current = this.head
+    while (current) {
+      nodes.push(current)
+      current = current.next
+    }
+    return nodes
+  }
+
+  /**
+  * @param {function} [callback]
+  * @return {string}
+  */
+  toString(callback) {
+    return this.toArray().map((node) => node.toString(callback)).toString();
+  }
+
+
+  /**
+  * 反转链表.
+  * @returns {LinkedList}
+  */
+  reverse() {
+    let current = this.head
+    let previous = null
+    while (current) {
+      const next = current.next
+      current.next = previous
+      previous = current
+      current = next
+    }
+    this.tail = this.head;
+    this.head = previous
+    return this
+  }
+
+
+  get(index) {
     if (index < 0 || index > this.length) throw new Error('不是有效的索引')
     let current = this.head
     let count = 0
@@ -52,7 +214,7 @@ export class NodeList {
     return current.value
   }
 
-  removeAt(index) {
+  remove(index) {
     if (index < 0 || index > this.length) throw new Error('不是有效的索引')
     let current = this.head
     let previous = null
@@ -97,7 +259,23 @@ export class DoubleList {
     this.tail = null
     this.length = 0
   }
+  prepend(value) {
+    // Make new node to be a head.
+    const newNode = new LinkedListNode(value, this.head);
+    this.head = newNode;
 
+    // If there is no tail yet let's make new node a tail.
+    if (!this.tail) {
+      this.tail = newNode;
+    }
+
+    return this;
+  }
+
+  /**
+   * @param {*} value
+   * @return {LinkedList}
+   */
   append(value) {
     let node = new DoubleNode(value)
     if (this.length == 0) {
@@ -108,7 +286,7 @@ export class DoubleList {
       this.tail = node
     }
   }
-  insertAt(value, index) {
+  insert(value, index) {
     if (index < 0 || index > this.length) throw new Error('不是有效的索引')
     let node = new DoubleNode(value)
     if (index === 0) {
@@ -131,7 +309,7 @@ export class DoubleList {
       node.previous = previous
       node.next = current
     }
-    this.length ++ 
+    this.length++
   }
 }
 
