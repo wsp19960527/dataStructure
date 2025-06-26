@@ -111,12 +111,53 @@ export default class Vertex {
   // 检查顶点是否有指定的邻居
   hasNeighbor(vertex) {
     const vertexNode = this.edges.find({
-      callback: (edge) => edge.startVertex === vertex || edge.endVertex === vertex,
+      callback: (edge) => edge.fromVertex === vertex || edge.toVertex === vertex,
     });
 
     return !!vertexNode;
   }
 
+  /**
+   * @param {Vertex} vertex
+   * @returns {(Edge|null)}
+   */
+  // 查找与指定顶点相连的边
+  findEdge(vertex) {
+    const edgeFinder = (edge) => {
+      return edge.fromVertex === vertex || edge.toVertex === vertex;
+    };
+
+    const edge = this.edges.find({ callback: edgeFinder });
+
+    return edge ? edge.value : null;
+  }
+
+  /**
+   * @returns {string}
+   */
+  // 获取顶点的键（即顶点的值）
+  getKey() {
+    return this.value;
+  }
+
+  /**
+   * @return {GraphVertex}
+   */
+  // 删除所有的边
+  deleteAllEdges() {
+    this.getEdges().forEach((edge) => this.deleteEdge(edge));
+
+    return this;
+  }
+
+  /**
+   * @param {function} [callback]
+   * @returns {string}
+   */
+  // 将顶点转换为字符串
+  toString(callback) {
+    return callback ? callback(this.value) : `${this.value}`;
+  }
 
 
 
